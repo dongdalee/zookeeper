@@ -12,8 +12,8 @@ services: # 컨테이너 서비스 정의 항목
     environment:
       #- ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
       #- ZOO_MY_ID=1
-      ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     ports:
       - 2181:2181
       - 2888:2888
@@ -33,8 +33,8 @@ services: # 컨테이너 서비스 정의 항목
     environment:
       #- ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
       #- ZOO_MY_ID=2
-      ZOO_MY_ID: 2
-      ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     ports:
       - 12181:2181
       - 12888:2888
@@ -54,8 +54,8 @@ services: # 컨테이너 서비스 정의 항목
     environment:
       #- ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
       #- ZOO_MY_ID=3
-      ZOO_MY_ID: 3
-      ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     ports:
       - 22181:2181
       - 22888:2888
@@ -78,9 +78,9 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
       - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183"
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
       #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
-      KAFKA_BROKER_ID: 1 # 카프카 브로커 ID 설정, 브로커가 뭐지?
+      - KAFKA_BROKER_ID=1 # 카프카 브로커 ID 설정, 브로커가 뭐지?
     ports:
       - 9092:9092
       - 9093:9093
@@ -102,9 +102,9 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
       - KAFKA_MIN_INSYNC_REPLICAS=2
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183"
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
       #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
-      KAFKA_BROKER_ID: 2
+      - KAFKA_BROKER_ID=2
     ports:
       - 10092:9092
       - 10093:9093
@@ -126,9 +126,9 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
       - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183"
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
       #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
-      KAFKA_BROKER_ID: 3
+      - KAFKA_BROKER_ID=3
     ports:
       - 11092:9092
       - 11093:9093
@@ -150,9 +150,9 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
       - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183"
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
       #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
-      KAFKA_BROKER_ID: 4
+      - KAFKA_BROKER_ID=4
     ports:
       - 12092:9092
       - 12093:9093
