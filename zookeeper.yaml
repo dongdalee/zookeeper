@@ -1,0 +1,158 @@
+version: '3' #도커 커포즈에서 사용할 버전
+
+networks:
+  cnrl:
+    external:
+      name: cnrl
+
+services: # 컨테이너 서비스 정의 항목  
+  zookeeper1_cnrlpub_com:
+    image: hyperledger/fabric-zookeeper
+    hostname: zookeeper1.cnrlpub.com
+    environment:
+      - ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
+      - ZOO_MY_ID=1
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
+
+  zookeeper2_cnrlpub_com:
+    hostname: zookeeper2.cnrlpub.com
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
+      - ZOO_MY_ID=2
+    ports:
+      - 12181:2181
+      - 12888:2888
+      - 13888:3888
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
+
+  zookeeper3_cnrlpub_com:
+    hostname: zookeeper3.cnrlpub.com
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
+      - ZOO_MY_ID=3
+    ports:
+      - 22181:2181
+      - 22888:2888
+      - 25888:3888
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
+
+  kafka1_cnrlpub_com:
+    image: hyperledger/fabric-kafka # 사용할 이미지 이름
+    hostname: kafka1.cnrlpub.com
+    environment: # 환경변수 설정 
+      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 카프카에서 허용하는 가장 큰 메세지 크기 (int, default: 1000012, 1MB 안됨)
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 한 번에 가져올 수 있는 최대 데이터 사이즈 (default: 52428800, 50MB)
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
+      - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
+      #- KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
+      - KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
+      - KAFKA_BROKER_ID=1 # 카프카 브로커 ID 설정, 브로커가 뭐지?
+    ports:
+      - 9092:9092
+      - 9093:9093
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
+          
+  kafka2_cnrlpub_com:
+    image: hyperledger/fabric-kafka
+    hostname: kafka2.cnrlpub.com
+    environment:
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      #- KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
+      - KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
+      - KAFKA_BROKER_ID=2
+    ports:
+      - 10092:9092
+      - 10093:9093
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
+    
+  kafka3_cnrlpub_com:
+    hostname: kafka3.cnrlpub.com
+    image: hyperledger/fabric-kafka # 사용할 이미지 이름
+    environment:
+      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 카프카에서 허용하는 가장 큰 메세지 크기 (int, default: 1000012, 1MB 안됨)
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 한 번에 가져올 수 있는 최대 데이터 사이즈 (default: 52428800, 50MB)
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
+      - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
+      - KAFKA_BROKER_ID=3
+    ports:
+      - 11092:9092
+      - 11093:9093
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
+
+  kafka4_cnrlpub_com:
+    hostname: kafka4.cnrlpub.com
+    image: hyperledger/fabric-kafka # 사용할 이미지 이름
+    environment:
+      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 카프카에서 허용하는 가장 큰 메세지 크기 (int, default: 1000012, 1MB 안됨)
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 한 번에 가져올 수 있는 최대 데이터 사이즈 (default: 52428800, 50MB)
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
+      - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
+      - KAFKA_BROKER_ID=4
+    ports:
+      - 12092:9092
+      - 12093:9093
+    networks:
+      - cnrl
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == cnrlab01
