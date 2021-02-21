@@ -116,7 +116,6 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
       - KAFKA_BROKER_ID=2
       - KAFKA_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_LISTENERS=PLAINTEXT://:9092
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=${KAFKA_AUTO_CREATE_TOPIC:-false}
       - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
       - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=9093
@@ -167,9 +166,19 @@ services: # 컨테이너 서비스 정의 항목
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
       placement:
         constraints:
           - node.hostname == cnrlab01
+      resources:
+        reservations:
+          cpus: '0.3'
+          memory: '3G'
+        limits:
+          cpus: '0.5'
+          memory: '4G'
 
   kafka4_cnrlpub_com:
     hostname: kafka4.cnrlpub.com
@@ -195,6 +204,16 @@ services: # 컨테이너 서비스 정의 항목
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
       placement:
         constraints:
           - node.hostname == cnrlab01
+      resources:
+        reservations:
+          cpus: '0.3'
+          memory: '3G'
+        limits:
+          cpus: '0.5'
+          memory: '4G'
