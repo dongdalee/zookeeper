@@ -11,7 +11,6 @@ services: # 컨테이너 서비스 정의 항목
     hostname: zookeeper1.cnrlpub.com
     environment:
       #- ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
-      #- ZOO_MY_ID=1
       - ZOO_MY_ID=1
       - ZOO_SERVERS=server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     ports:
@@ -32,7 +31,6 @@ services: # 컨테이너 서비스 정의 항목
     image: hyperledger/fabric-zookeeper
     environment:
       #- ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
-      #- ZOO_MY_ID=2
       - ZOO_MY_ID=2
       - ZOO_SERVERS=server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     ports:
@@ -53,7 +51,6 @@ services: # 컨테이너 서비스 정의 항목
     image: hyperledger/fabric-zookeeper
     environment:
       #- ZOO_SERVERS=server.1=zookeeper1.cnrlpub.com:2888:3888 server.2=zookeeper2.cnrlpub.com:2888:3888 server.3=zookeeper3.cnrlpub.com:2888:3888
-      #- ZOO_MY_ID=3
       - ZOO_MY_ID=3
       - ZOO_SERVERS=server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     ports:
@@ -79,19 +76,33 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
-      #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
       - KAFKA_BROKER_ID=1 # 카프카 브로커 ID 설정, 브로커가 뭐지?
-    ports:
-      - 9092:9092
-      - 9093:9093
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=${KAFKA_AUTO_CREATE_TOPIC:-false}
+      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=9093
+      - JMX_PORT=9093
+    #ports:
+      #- 9092:9092
+      #- 9093:9093
     networks:
       - cnrl
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
       placement:
         constraints:
           - node.hostname == cnrlab01
+      resources:
+        reservations:
+          cpus: '0.3'
+          memory: '3G'
+        limits:
+          cpus: '0.5'
+          memory: '4G'
           
   kafka2_cnrlpub_com:
     image: hyperledger/fabric-kafka
@@ -103,35 +114,54 @@ services: # 컨테이너 서비스 정의 항목
       - KAFKA_MIN_INSYNC_REPLICAS=2
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
-      #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
       - KAFKA_BROKER_ID=2
-    ports:
-      - 10092:9092
-      - 10093:9093
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=${KAFKA_AUTO_CREATE_TOPIC:-false}
+      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=9093
+      - JMX_PORT=9093
+    #ports:
+    #  - 10092:9092
+    #  - 10093:9093
     networks:
       - cnrl
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
       placement:
         constraints:
           - node.hostname == cnrlab01
+      resources:
+        reservations:
+          cpus: '0.3'
+          memory: '3G'
+        limits:
+          cpus: '0.5'
+          memory: '4G'
     
   kafka3_cnrlpub_com:
     hostname: kafka3.cnrlpub.com
-    image: hyperledger/fabric-kafka # 사용할 이미지 이름
+    image: hyperledger/fabric-kafka
     environment:
-      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 카프카에서 허용하는 가장 큰 메세지 크기 (int, default: 1000012, 1MB 안됨)
-      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 한 번에 가져올 수 있는 최대 데이터 사이즈 (default: 52428800, 50MB)
-      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
-      - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
-      - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3 
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
-      #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
       - KAFKA_BROKER_ID=3
-    ports:
-      - 11092:9092
-      - 11093:9093
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=${KAFKA_AUTO_CREATE_TOPIC:-false}
+      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=9093
+      - JMX_PORT=9093
+    #ports:
+    #  - 11092:9092
+    #  - 11093:9093
     networks:
       - cnrl
     deploy:
@@ -143,19 +173,23 @@ services: # 컨테이너 서비스 정의 항목
 
   kafka4_cnrlpub_com:
     hostname: kafka4.cnrlpub.com
-    image: hyperledger/fabric-kafka # 사용할 이미지 이름
+    image: hyperledger/fabric-kafka
     environment:
-      - KAFKA_MESSAGE_MAX_BYTES=103809024 # 카프카에서 허용하는 가장 큰 메세지 크기 (int, default: 1000012, 1MB 안됨)
-      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 # 한 번에 가져올 수 있는 최대 데이터 사이즈 (default: 52428800, 50MB)
-      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false # ISR 그룹에 포함되지 않은 마지막 리플리카를 리더로 인정 (default: true)
-      - KAFKA_MIN_INSYNC_REPLICAS=2 # 프로듀서가 acks=all로 설정하여 메시지를 보낼 때, write를 성공하기 위한 최소 복제본의 수
-      - KAFKA_DEFAULT_REPLICATION_FACTOR=3 # 토픽을 자동으로 생성하는 과정에서 partition 수와 replication-factor 값 설정
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024 
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=2 
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.cnrlpub.com:2181,zookeeper2.cnrlpub.com:2182,zookeeper3.cnrlpub.com:2183
-      #- KAFKA_ZOOKEEPER_CONNECT=10.41.173.210:2181 10.41.173.210:2182 10.41.173.210:2183
       - KAFKA_BROKER_ID=4
-    ports:
-      - 12092:9092
-      - 12093:9093
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=${KAFKA_AUTO_CREATE_TOPIC:-false}
+      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=9093
+      - JMX_PORT=9093
+    #ports:
+    #  - 12092:9092
+    #  - 12093:9093
     networks:
       - cnrl
     deploy:
